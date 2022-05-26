@@ -28,7 +28,7 @@ function CreateReservation() {
   }
 
   const handleSubmit = (event) => {
-    event.preventDefault();
+    event.preventDefault(); 
     createReservation(formData)
       .then(() => history.push(`/dashboard?date=${formData.reservation_date}`))
       .catch((error) => {
