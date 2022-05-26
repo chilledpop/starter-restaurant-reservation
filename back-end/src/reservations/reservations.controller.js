@@ -4,6 +4,7 @@
 
 const reservationsService = require("./reservations.service");
 const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
+const P = require("pino");
 
 
 // validation middleware
@@ -24,7 +25,7 @@ async function isValidData(req, res, next) {
   next();
 }
 
-async function hasValidFields(req, res, next) {
+async function hasRequiredFields(req, res, next) {
   for (const field of REQUIRED_FIELDS) {
     if (!req.body.data[field]) {
       return next({ status: 400, message: `Missing field: ${field}.`});
@@ -41,14 +42,30 @@ async function hasValidFields(req, res, next) {
     return next({ status: 400, message: `reservation_time is not a valid time.`})
   }
 
-  if ( (typeof people !== 'number') || isNaN(people)) {
+  if ((typeof people !== 'number') || isNaN(people)) {
     return next({ status: 400, message: `people is not a valid number.`});
+  }
+
+  res.locals.reservation = req.body.data;
+  next();
+}
+
+async function validDay(req, res, next) {
+  const { reservation_date, reservation_time } = res.locals.reservation;
+
+  const reserveDate = new Date(reservation_date + "T" + reservation_time);
+  const today = new Date();
+
+  if (reserveDate.getDay() === 2) {
+    return next({ status: 400, message: `The restaurant is closed on Tuesdays.`});
+  }
+
+  if (reserveDate < today) {
+    return next({ status: 400, message: `The reservation time and date must be in the future.`});
   }
 
   next();
 }
-
-
 
 
 // CRUD functions
@@ -72,7 +89,8 @@ module.exports = {
   list: asyncErrorBoundary(list),
   create: [
     asyncErrorBoundary(isValidData), 
-    asyncErrorBoundary(hasValidFields), 
-    asyncErrorBoundary(create)
+    asyncErrorBoundary(hasRequiredFields), 
+    asyncErrorBoundary(validDay),
+    asyncErrorBoundary(create),
   ],
 };
