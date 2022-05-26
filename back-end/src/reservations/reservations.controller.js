@@ -56,11 +56,11 @@ async function validDay(req, res, next) {
   const reserveDate = new Date(reservation_date + "T" + reservation_time);
   const today = new Date();
 
-  if (reserveDate.getDay() === 2) {
+  if(reserveDate.getDay() === 2) {
     return next({ status: 400, message: `The restaurant is closed on Tuesdays.`});
   }
 
-  if (reserveDate < today) {
+  if(reserveDate < today) {
     return next({ status: 400, message: `The reservation time and date must be in the future.`});
   }
 
