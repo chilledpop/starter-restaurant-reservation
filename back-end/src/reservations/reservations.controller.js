@@ -4,7 +4,6 @@
 
 const reservationsService = require("./reservations.service");
 const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
-const P = require("pino");
 
 
 // validation middleware
@@ -50,7 +49,7 @@ async function hasRequiredFields(req, res, next) {
   next();
 }
 
-async function validDay(req, res, next) {
+async function validDate(req, res, next) {
   const { reservation_date, reservation_time } = res.locals.reservation;
 
   const reserveDate = new Date(reservation_date + "T" + reservation_time);
@@ -68,6 +67,22 @@ async function validDay(req, res, next) {
 }
 
 
+async function duringBusinessHours(req, res, next) {
+  const { reservation_time } = res.locals.reservation;
+  const time = Number(reservation_time.replace(":", ""));
+    
+  if (time < 1030) {
+    return next({ status: 400, message: `The restaurant is not open until 10:30am.`});
+  }
+
+  if (time > 2130) {
+    return next({ status: 400, message: `The restaurant closes at 10:30pm.`})
+  }
+
+  next();
+}
+
+
 // CRUD functions
 
 
@@ -79,7 +94,7 @@ async function create(req, res) {
 }
 
 
-async function list(req, res, next) {
+async function list(req, res) {
   const { date } = req.query;
   const data = await reservationsService.listByDate(date);
   res.json({ data });
@@ -90,7 +105,8 @@ module.exports = {
   create: [
     asyncErrorBoundary(isValidData), 
     asyncErrorBoundary(hasRequiredFields), 
-    asyncErrorBoundary(validDay),
+    asyncErrorBoundary(validDate),
+    asyncErrorBoundary(duringBusinessHours),
     asyncErrorBoundary(create),
   ],
 };
