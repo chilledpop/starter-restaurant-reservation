@@ -1,5 +1,5 @@
 import React from "react";
-
+import { Link } from "react-router-dom";
 
 function ReservationList({ reservation }) {
   return (
@@ -11,6 +11,7 @@ function ReservationList({ reservation }) {
         <p className="card-text">
           Party Size: {reservation.people}
         </p>
+        <Link className="btn btn-outline-info"to={`/reservations/${reservation.reservation_id}/seat`}>Seat</Link>
       </div>
     </div>
   )

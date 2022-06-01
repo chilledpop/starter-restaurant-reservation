@@ -24,11 +24,11 @@ function Routes() {
       <Route exact={true} path="/reservations/new">
         <CreateReservation />
       </Route>
-      <Route path="/dashboard">
-        <Dashboard/>
-      </Route>
       <Route exact-={true} path="/tables/new">
         <CreateTable />
+      </Route>
+      <Route path="/dashboard">
+        <Dashboard/>
       </Route>
       <Route>
         <NotFound />

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router";
-import createTable from "../utils/api";
+import { createTable } from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
 
 
@@ -20,8 +20,6 @@ function CreateTable() {
       ...formData,
       [target.name]: target.id === "capacity" ? target.valueAsNumber : target.value, 
     });
-    console.log(formData.capacity, typeof formData.capacity)
-    console.log(formData.table_name)
   }
 
   const handleSubmit = (event) => {
@@ -31,6 +29,7 @@ function CreateTable() {
       .catch((error) => {
         setError(error);
       })
+    console.log(formData)
   }
 
   const cancelHandler = () => {

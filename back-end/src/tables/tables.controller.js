@@ -47,11 +47,17 @@ async function create(req, res) {
   res.status(201).json({ data: newTable });
 }
 
+async function list(req, res) {
+  const tables = await tablesService.list();
+  res.status(200).json({ data: tables });
+}
+
 
 module.exports = {
   create: [
     asyncErrorBoundary(isValidData),
     asyncErrorBoundary(hasRequiredFields),
     asyncErrorBoundary(create),
-  ]
+  ],
+  list: asyncErrorBoundary(list),
 }
