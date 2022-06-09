@@ -16,7 +16,7 @@ const REQUIRED_FIELDS = [
   "people",
 ]
 
-async function isValidData(req, res, next) {
+function isValidData(req, res, next) {
   if (!req.body.data) {
     return next({ status: 400, message: "Missing input fields."})
   }
@@ -24,7 +24,7 @@ async function isValidData(req, res, next) {
   next();
 }
 
-async function hasRequiredFields(req, res, next) {
+function hasRequiredFields(req, res, next) {
   for (const field of REQUIRED_FIELDS) {
     if (!req.body.data[field]) {
       return next({ status: 400, message: `Missing field: ${field}.`});
@@ -49,7 +49,7 @@ async function hasRequiredFields(req, res, next) {
   next();
 }
 
-async function validDate(req, res, next) {
+function validDate(req, res, next) {
   const { reservation_date, reservation_time } = res.locals.reservation;
 
   const reserveDate = new Date(reservation_date + "T" + reservation_time);
@@ -67,7 +67,7 @@ async function validDate(req, res, next) {
 }
 
 
-async function duringBusinessHours(req, res, next) {
+function duringBusinessHours(req, res, next) {
   const { reservation_time } = res.locals.reservation;
   const time = Number(reservation_time.replace(":", ""));
     
@@ -78,6 +78,20 @@ async function duringBusinessHours(req, res, next) {
   if (time > 2130) {
     return next({ status: 400, message: `The restaurant closes at 10:30pm.`})
   }
+
+  next();
+}
+
+
+async function reservationExists(req, res, next) {
+  const { reservation_id } = req.params;
+  const reservation = await reservationsService.read(reservation_id);
+
+  if (!reservation) {
+    return next({ status: 400, message: `Reservation ${reservation_id} does not exist.`});
+  }
+
+  res.locals.reservation = reservation;
 
   next();
 }
@@ -100,13 +114,23 @@ async function list(req, res) {
   res.json({ data });
 }
 
+function read(req, res) {
+  const reservation = res.locals.reservation;
+  res.json({ data: reservation });
+}
+
+
 module.exports = {
   list: asyncErrorBoundary(list),
   create: [
-    asyncErrorBoundary(isValidData), 
-    asyncErrorBoundary(hasRequiredFields), 
-    asyncErrorBoundary(validDate),
-    asyncErrorBoundary(duringBusinessHours),
+    isValidData, 
+    hasRequiredFields, 
+    validDate,
+    duringBusinessHours,
     asyncErrorBoundary(create),
   ],
+  read: [
+    asyncErrorBoundary(reservationExists),
+    read,
+  ]
 };
