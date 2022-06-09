@@ -27,6 +27,7 @@ function read(table_id) {
     .first();
 }
 
+
 module.exports = {
   create,
   list,

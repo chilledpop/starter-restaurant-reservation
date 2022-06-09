@@ -91,10 +91,19 @@ function tableCapacity(req, res, next) {
 }
 
 
-function tableStatus(req, res, next) {
+function tableOccupied(req, res, next) {
   const table = res.locals.table;
   if (table.status === "Occupied") {
     return next({ status: 400, message: `Table is currently occupied.`});
+  }
+
+  next();
+}
+
+function tableNotOccupied(req, res, next) {
+  const table = res.locals.table;
+  if (table.status === "Free") {
+    return next({ status: 400, message: `Table is not occupied.`});
   }
 
   next();
@@ -113,13 +122,21 @@ async function list(req, res) {
   res.status(200).json({ data: tables });
 }
 
-async function updateSeatReservation(req, res, next) {
+async function updateSeatReservation(req, res) {
   const { table, reservation } = res.locals;
   table.reservation_id = reservation.reservation_id;
   table.status = "Occupied";
 
   const updatedTable = await tablesService.update(table);
   res.json({ data: updatedTable });
+}
+
+async function finishTable(req, res) {
+  const { table } = res.locals;
+  table.reservation_id = null;
+  table.status = "Free";
+  const updatedTable = await tablesService.update(table);
+  res.status(200).json({ data: updatedTable });
 }
 
 
@@ -136,7 +153,12 @@ module.exports = {
     asyncErrorBoundary(tableExists),
     asyncErrorBoundary(reservationExists),
     tableCapacity,
-    tableStatus,
+    tableOccupied,
     asyncErrorBoundary(updateSeatReservation),
+  ],
+  delete: [
+    asyncErrorBoundary(tableExists),
+    tableNotOccupied,
+    asyncErrorBoundary(finishTable),
   ]
 }
