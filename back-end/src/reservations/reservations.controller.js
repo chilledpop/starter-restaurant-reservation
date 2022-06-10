@@ -88,7 +88,7 @@ async function reservationExists(req, res, next) {
   const reservation = await reservationsService.read(reservation_id);
 
   if (!reservation) {
-    return next({ status: 400, message: `Reservation ${reservation_id} does not exist.`});
+    return next({ status: 404, message: `Reservation ${reservation_id} does not exist.`});
   }
 
   res.locals.reservation = reservation;
