@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { listReservations, listTables } from "../utils/api";
+import { useHistory } from "react-router-dom";
+import { listReservations, listTables, finishTable } from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
 import { previous, today, next } from "../utils/date-time";
 import useQuery from "../utils/useQuery";
 import ReservationList from "./ReservationList";
 import TablesList from "./TablesList";
+import axios from "axios";
 
 /**
  * Defines the dashboard page.
@@ -14,6 +16,8 @@ import TablesList from "./TablesList";
  */
 function Dashboard() {
   const query = useQuery();
+  const history = useHistory();
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
 
   const [date, setDate] = useState(query.get("date") || today());
   const [reservations, setReservations] = useState([]);
@@ -38,6 +42,20 @@ function Dashboard() {
 
   const handleChange = ({ target }) => {
     setDate(target.value);
+  }
+
+  const handleFinish = (table_id) => {
+    const userResponse = window.confirm(
+      "Is this table ready to seat new guests? This cannot be undone."
+    );
+
+    if (userResponse) {
+      finishTable(table_id)
+        .then(() => history.go(0))
+        .catch(setTablesError);
+      axios
+        .get(`${API_BASE_URL}/tables`);
+    };
   }
 
   return (
@@ -75,7 +93,7 @@ function Dashboard() {
           {tables.length ? <h5>Tables</h5> : `There are no tables.`}
         </div>
         {tables.map((table) => (
-          <TablesList key={table.table_id} table={table} />
+          <TablesList key={table.table_id} table={table} handleFinish={handleFinish}/>
         ))}
       </div>
     </main>
