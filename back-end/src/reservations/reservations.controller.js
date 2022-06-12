@@ -96,6 +96,35 @@ async function reservationExists(req, res, next) {
   next();
 }
 
+function statusOnlyBooked(req, res, next) {
+  const { status } = req.body.data;
+
+  if (status && status !== "booked") {
+    return next({ status: 400, message: `Status cannot be ${status} for new reservations.`})
+  }
+
+  next();
+}
+
+function validStatus(req, res, next) {
+  const { status } = req.body.data;
+
+  if (status !== "booked" && status !== "seated" && status !== "finished") {
+    return next({ status: 400, message: `unknown status. status must be booked, seated, or finished.`})
+  }
+
+  next();
+}
+
+function statusNotFinished(req, res, next) {
+  const { reservation } = res.locals;
+
+  if (reservation.status === "finished") {
+    return next({ status: 400, message: `Reservation status is already finished and cannot be updated.`});
+  }
+
+  next();
+}
 
 // CRUD functions
 
@@ -110,13 +139,24 @@ async function create(req, res) {
 
 async function list(req, res) {
   const { date } = req.query;
-  const data = await reservationsService.listByDate(date);
+  const data = await reservationsService.list(date);
   res.json({ data });
 }
 
 function read(req, res) {
   const reservation = res.locals.reservation;
   res.json({ data: reservation });
+}
+
+async function updateResStatus(req, res) {
+  const { reservation } = res.locals;
+  const updatedStatus = { 
+    ...req.body.data,
+    reservation_id: reservation.reservation_id,
+  }
+
+  const data = await reservationsService.update(updatedStatus);
+  res.json({ data: data });
 }
 
 
@@ -127,10 +167,17 @@ module.exports = {
     hasRequiredFields, 
     validDate,
     duringBusinessHours,
+    statusOnlyBooked,
     asyncErrorBoundary(create),
   ],
   read: [
     asyncErrorBoundary(reservationExists),
     read,
+  ],
+  updateResStatus: [
+    asyncErrorBoundary(reservationExists),
+    validStatus,
+    statusNotFinished,
+    asyncErrorBoundary(updateResStatus),
   ]
 };

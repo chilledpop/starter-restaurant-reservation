@@ -109,6 +109,15 @@ function tableNotOccupied(req, res, next) {
   next();
 }
 
+function checkResStatus(req, res, next) {
+  const { reservation } = res.locals;
+  if (reservation.status === "seated") {
+    return next({ status: 400, message: `Reservation is already seated.`});
+  } 
+
+  next();
+}
+
 // CRUD functions
 
 async function create(req, res) {
@@ -126,15 +135,25 @@ async function updateSeatReservation(req, res) {
   const { table, reservation } = res.locals;
   table.reservation_id = reservation.reservation_id;
   table.status = "Occupied";
+  reservation.status = "seated";
 
   const updatedTable = await tablesService.update(table);
+  await reservationsService.update(reservation);
   res.json({ data: updatedTable });
 }
 
 async function finishTable(req, res) {
   const { table } = res.locals;
+
+  const updatedReservation = {
+    status: "finished",
+    reservation_id: table.reservation_id,
+  }
+  await reservationsService.update(updatedReservation);
+
   table.reservation_id = null;
   table.status = "Free";
+
   const updatedTable = await tablesService.update(table);
   res.status(200).json({ data: updatedTable });
 }
@@ -154,6 +173,7 @@ module.exports = {
     asyncErrorBoundary(reservationExists),
     tableCapacity,
     tableOccupied,
+    checkResStatus,
     asyncErrorBoundary(updateSeatReservation),
   ],
   delete: [
