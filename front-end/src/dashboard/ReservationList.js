@@ -11,7 +11,14 @@ function ReservationList({ reservation }) {
         <p className="card-text">
           Party Size: {reservation.people}
         </p>
-        <Link className="btn btn-outline-info"to={`/reservations/${reservation.reservation_id}/seat`}>Seat</Link>
+        <p data-reservation-id-status={reservation.reservation_id}>
+          Status: {reservation.status}
+        </p>
+        {reservation.status === "booked" &&
+          <Link className="btn btn-outline-info"to={`/reservations/${reservation.reservation_id}/seat`}>
+            Seat
+          </Link>
+        }
       </div>
     </div>
   )
