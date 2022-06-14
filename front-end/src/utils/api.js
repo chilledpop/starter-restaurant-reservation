@@ -171,3 +171,19 @@ export async function finishTable(table_id, signal) {
   };
   return await fetchJson(url, options);
 }
+
+
+/**
+ * Searches the current list of reservations for the matching phone number
+ * @param phone_number
+ *  the phone number to search
+ * @param signal 
+ *  optional AbortController.signal
+ * @returns {Promise<reservation>}
+ *  a promise that resolves to the 
+ */
+
+export async function searchReservations(mobile_number, signal) {
+  const url = `${API_BASE_URL}/reservations?mobile_number=${mobile_number}`;
+  return await fetchJson(url, { signal } );
+}
