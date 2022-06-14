@@ -6,7 +6,7 @@ const reservationsService = require("./reservations.service");
 const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 
 
-// validation middleware
+// VALIDATION MIDDLEWARE
 const REQUIRED_FIELDS = [
   "first_name",
   "last_name",
@@ -16,6 +16,7 @@ const REQUIRED_FIELDS = [
   "people",
 ]
 
+// checks that the request body is not empty
 function isValidData(req, res, next) {
   if (!req.body.data) {
     return next({ status: 400, message: "Missing input fields."})
@@ -24,6 +25,7 @@ function isValidData(req, res, next) {
   next();
 }
 
+// checks the request body for the required fields to create a reservation
 function hasRequiredFields(req, res, next) {
   for (const field of REQUIRED_FIELDS) {
     if (!req.body.data[field]) {
@@ -49,6 +51,7 @@ function hasRequiredFields(req, res, next) {
   next();
 }
 
+// checks that the reservation date is in the future and not on a Tuesday
 function validDate(req, res, next) {
   const { reservation_date, reservation_time } = res.locals.reservation;
 
@@ -66,7 +69,7 @@ function validDate(req, res, next) {
   next();
 }
 
-
+// verifies that the reservation time is during operating hours
 function duringBusinessHours(req, res, next) {
   const { reservation_time } = res.locals.reservation;
   const time = Number(reservation_time.replace(":", ""));
@@ -82,7 +85,7 @@ function duringBusinessHours(req, res, next) {
   next();
 }
 
-
+// verifies the existence of the reservation 
 async function reservationExists(req, res, next) {
   const { reservation_id } = req.params;
   const reservation = await reservationsService.read(reservation_id);
@@ -96,6 +99,7 @@ async function reservationExists(req, res, next) {
   next();
 }
 
+// verifies that the status is only booked before creating the reservation
 function statusOnlyBooked(req, res, next) {
   const { status } = req.body.data;
 
@@ -106,6 +110,7 @@ function statusOnlyBooked(req, res, next) {
   next();
 }
 
+// checks that the reservation has a valid status
 function validStatus(req, res, next) {
   const { status } = req.body.data;
 
@@ -116,6 +121,7 @@ function validStatus(req, res, next) {
   next();
 }
 
+// verifies that the reservation is not finished before updating the status 
 function statusNotFinished(req, res, next) {
   const { reservation } = res.locals;
 
@@ -126,28 +132,49 @@ function statusNotFinished(req, res, next) {
   next();
 }
 
-// CRUD functions
+
+// checks request query for either a date or phone number
+async function queryInput(req, res, next) {
+  const { date, mobile_number } = req.query;
+
+  if (date) {
+    res.locals.reservations = await reservationsService.list(date);
+    next();
+  }
+
+  if (mobile_number) {
+    res.locals.reservations = await reservationsService.search(mobile_number);
+    next();
+  }
+
+  return next({ status: 400, message: `No query found.`});
+}
 
 
-// create new reservation, need to add middleware functions
+
+// CRUD FUNCTIONS
+
+
+// creates a new reservation
 async function create(req, res) {
   const data = req.body.data;
   const newReservation = await reservationsService.create(data);
   res.status(201).json({ data: newReservation });
 }
 
-
-async function list(req, res) {
-  const { date } = req.query;
-  const data = await reservationsService.list(date);
-  res.json({ data });
+// lists all reservations
+function list(req, res) {
+  const { reservations } = res.locals;
+  res.json({ data: reservations });
 }
 
+// returns reservation matching the reservation_id
 function read(req, res) {
   const reservation = res.locals.reservation;
   res.json({ data: reservation });
 }
 
+// updates a reservation's status 
 async function updateResStatus(req, res) {
   const { reservation } = res.locals;
   const updatedStatus = { 
@@ -161,7 +188,10 @@ async function updateResStatus(req, res) {
 
 
 module.exports = {
-  list: asyncErrorBoundary(list),
+  list: [
+    asyncErrorBoundary(queryInput),
+    list,
+  ],
   create: [
     isValidData, 
     hasRequiredFields, 
