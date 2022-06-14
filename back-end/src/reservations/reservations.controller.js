@@ -133,25 +133,6 @@ function statusNotFinished(req, res, next) {
 }
 
 
-// checks request query for either a date or phone number
-async function queryInput(req, res, next) {
-  const { date, mobile_number } = req.query;
-
-  if (date) {
-    res.locals.reservations = await reservationsService.list(date);
-    next();
-  }
-
-  if (mobile_number) {
-    res.locals.reservations = await reservationsService.search(mobile_number);
-    next();
-  }
-
-  return next({ status: 400, message: `No query found.`});
-}
-
-
-
 // CRUD FUNCTIONS
 
 
@@ -163,9 +144,19 @@ async function create(req, res) {
 }
 
 // lists all reservations
-function list(req, res) {
-  const { reservations } = res.locals;
-  res.json({ data: reservations });
+async function list(req, res) {
+  const { date, mobile_number } = req.query;
+
+  if (date) {
+    const data = await reservationsService.list(date);
+    res.json({ data });
+  } 
+  
+  if (mobile_number) {
+    const data = await reservationsService.search(mobile_number);
+    res.json({ data });
+  }
+
 }
 
 // returns reservation matching the reservation_id
@@ -188,10 +179,7 @@ async function updateResStatus(req, res) {
 
 
 module.exports = {
-  list: [
-    asyncErrorBoundary(queryInput),
-    list,
-  ],
+  list: asyncErrorBoundary(list),
   create: [
     isValidData, 
     hasRequiredFields, 
