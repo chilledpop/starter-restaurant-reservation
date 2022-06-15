@@ -29,7 +29,6 @@ function CreateTable() {
       .catch((error) => {
         setError(error);
       })
-    console.log(formData)
   }
 
   const cancelHandler = () => {
