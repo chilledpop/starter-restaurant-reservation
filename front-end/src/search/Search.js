@@ -59,7 +59,7 @@ function Search() {
         <br />
         {reservations.length ? <h5>Results</h5> : <p>No reservations found</p>}
         {reservations && reservations.map((reservation) => (
-          <ReservationList reservation={reservation} />
+          <ReservationList key={reservation.reservation_id} reservation={reservation} />
         ))}
       </form>
     </div>
