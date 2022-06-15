@@ -114,7 +114,7 @@ function statusOnlyBooked(req, res, next) {
 function validStatus(req, res, next) {
   const { status } = req.body.data;
 
-  if (status !== "booked" && status !== "seated" && status !== "finished") {
+  if (status !== "booked" && status !== "seated" && status !== "finished" && status !== "cancelled") {
     return next({ status: 400, message: `unknown status. status must be booked, seated, or finished.`})
   }
 
@@ -177,6 +177,16 @@ async function updateResStatus(req, res) {
   res.json({ data: data });
 }
 
+async function update(req, res) {
+  const { reservation } = res.locals;
+  const updatedReservation = {
+    ...req.body.data,
+    reservation_id: reservation.reservation_id,
+  }
+
+  const updated = await reservationsService.update(updatedReservation);
+  res.json({ data: updated });
+}
 
 module.exports = {
   list: asyncErrorBoundary(list),
@@ -197,5 +207,13 @@ module.exports = {
     validStatus,
     statusNotFinished,
     asyncErrorBoundary(updateResStatus),
-  ]
+  ],
+  update: [
+    isValidData,
+    hasRequiredFields,
+    asyncErrorBoundary(reservationExists),
+    validDate,
+    duringBusinessHours,
+    asyncErrorBoundary(update),
+  ],
 };
