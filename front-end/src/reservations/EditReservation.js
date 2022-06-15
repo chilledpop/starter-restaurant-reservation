@@ -44,7 +44,6 @@ function EditReservation({ forceRerender, setForceRerender }) {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log(formData);
     const abortController = new AbortController();
     updateReservation(formData, abortController.signal)
       .then(() => {
@@ -52,7 +51,6 @@ function EditReservation({ forceRerender, setForceRerender }) {
         setForceRerender(!forceRerender);
       })
       .catch(setError);
-    // window.location.reload();
     return () => abortController.abort();
   }
 
