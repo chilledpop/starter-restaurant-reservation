@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useParams, useHistory } from "react-router-dom";
 import ReservationForm from "./ReservationForm";
 import { readReservation, updateReservation } from "../utils/api";
+import { formatAsDate } from "../utils/date-time";
 import ErrorAlert from "../layout/ErrorAlert";
 
 
-function EditReservation() {
+function EditReservation({ forceRerender, setForceRerender }) {
   const initialFormState = {
     first_name: "",
     last_name: "",
@@ -24,7 +25,10 @@ function EditReservation() {
     const abortController = new AbortController();
     readReservation(reservation_id, abortController.signal)
       .then((reservationFromAPI) => {
-        setFormData({...reservationFromAPI});
+        setFormData({
+          ...reservationFromAPI,
+          reservation_date: formatAsDate(reservationFromAPI.reservation_date),
+        });
       })
       .catch(setError);
     return () => abortController.abort();
@@ -40,10 +44,15 @@ function EditReservation() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    console.log(formData);
     const abortController = new AbortController();
     updateReservation(formData, abortController.signal)
-      .then(history.goBack())
+      .then(() => {
+        history.push("/");
+        setForceRerender(!forceRerender);
+      })
       .catch(setError);
+    // window.location.reload();
     return () => abortController.abort();
   }
 
