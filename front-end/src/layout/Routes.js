@@ -1,5 +1,4 @@
-import React from "react";
-
+import React, { useState } from "react";
 import { Redirect, Route, Switch } from "react-router-dom";
 import Dashboard from "../dashboard/Dashboard";
 import NotFound from "./NotFound";
@@ -18,6 +17,7 @@ import EditReservation from "../reservations/EditReservation";
  * @returns {JSX.Element}
  */
 function Routes() {
+  const [forceRerender, setForceRerender] = useState(false);
   return (
     <Switch>
       <Route exact={true} path="/">
@@ -33,7 +33,7 @@ function Routes() {
         <SeatReservation />
       </Route>
       <Route exact={true} path="/reservations/:reservation_id/edit">
-        <EditReservation />
+        <EditReservation forceRerender={forceRerender} setForceRerender={setForceRerender}/>
       </Route>
       <Route exact-={true} path="/tables/new">
         <CreateTable />
