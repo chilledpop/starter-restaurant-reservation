@@ -47,7 +47,7 @@ function EditReservation({ forceRerender, setForceRerender }) {
     const abortController = new AbortController();
     updateReservation(formData, abortController.signal)
       .then(() => {
-        history.push("/");
+        history.push(`/dashboard?date=${formData.reservation_date}`);
         setForceRerender(!forceRerender);
       })
       .catch(setError);
