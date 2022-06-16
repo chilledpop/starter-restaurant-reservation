@@ -55,7 +55,7 @@ function EditReservation({ forceRerender, setForceRerender }) {
   }
 
   const cancelHandler = () => {
-    history.goBack();
+    history.push(`/dashboard?date=${formData.reservation_date}`);
   }
 
   return (
