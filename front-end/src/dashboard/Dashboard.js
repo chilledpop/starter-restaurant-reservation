@@ -6,7 +6,6 @@ import { previous, today, next } from "../utils/date-time";
 import useQuery from "../utils/useQuery";
 import ReservationList from "./ReservationList";
 import TablesList from "./TablesList";
-import axios from "axios";
 
 /**
  * Defines the dashboard page.
@@ -14,10 +13,9 @@ import axios from "axios";
  *  the date for which the user wants to view reservations.
  * @returns {JSX.Element}
  */
-function Dashboard() {
+function Dashboard({ forceRerender, setForceRerender }) {
   const query = useQuery();
   const history = useHistory();
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
 
   const [date, setDate] = useState(query.get("date") || today());
   const [reservations, setReservations] = useState([]);
@@ -50,11 +48,15 @@ function Dashboard() {
     );
 
     if (userResponse) {
-      finishTable(table_id)
-        .then(() => history.go(0))
+      const abortController = new AbortController();
+      finishTable(table_id, abortController.signal)
+        .then(() => {
+          listTables();
+          history.push("/");
+          setForceRerender(!forceRerender);
+        })
         .catch(setTablesError);
-      axios
-        .get(`${API_BASE_URL}/tables`);
+      return () => abortController.abort()
     };
   }
 

@@ -18,6 +18,7 @@ import EditReservation from "../reservations/EditReservation";
  */
 function Routes() {
   const [forceRerender, setForceRerender] = useState(false);
+
   return (
     <Switch>
       <Route exact={true} path="/">
@@ -39,7 +40,7 @@ function Routes() {
         <CreateTable />
       </Route>
       <Route path="/dashboard">
-        <Dashboard />
+        <Dashboard forceRerender={forceRerender} setForceRerender={setForceRerender}/>
       </Route>
       <Route path="/search">
         <Search />
