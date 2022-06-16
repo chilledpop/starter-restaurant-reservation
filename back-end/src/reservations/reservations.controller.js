@@ -177,6 +177,7 @@ async function updateResStatus(req, res) {
   res.json({ data: data });
 }
 
+// updates a reservation
 async function update(req, res) {
   const { reservation } = res.locals;
   const updatedReservation = {

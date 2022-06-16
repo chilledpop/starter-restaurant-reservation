@@ -14,7 +14,7 @@ const VALID_FIELDS = [
   "reservation_id",
 ]
 
-
+// verifies the request body is not empty
 function isValidData(req, res, next) {
   if (!req.body.data) {
     return next({ status: 400, message: "Missing input fields."})
@@ -23,6 +23,7 @@ function isValidData(req, res, next) {
   next();
 }
 
+// verifies the request body has required fields
 function hasRequiredFields(req, res, next) {
   for (const field of REQUIRED_FIELDS) {
     if (!req.body.data[field]) {
@@ -44,6 +45,7 @@ function hasRequiredFields(req, res, next) {
   next();
 }
 
+// verifies the request body has valid fields for an update
 function hasValidFields(req, res, next) {
   for (const field of VALID_FIELDS) {
     if (!req.body.data[field]) {
@@ -54,6 +56,7 @@ function hasValidFields(req, res, next) {
   next();
 }
 
+// checks for the existence of the table
 async function tableExists(req, res, next) {
   const { table_id } = req.params;
   const table = await tablesService.read(table_id);
@@ -67,6 +70,7 @@ async function tableExists(req, res, next) {
   next();
 }
 
+// checks for the existence of a reservation
 async function reservationExists(req, res, next) {
   const { reservation_id } = req.body.data;
   const reservation = await reservationsService.read(reservation_id);
@@ -79,6 +83,7 @@ async function reservationExists(req, res, next) {
   next();
 }
 
+// verifies the table capacity can accomodate the number of people
 function tableCapacity(req, res, next) {
   const { capacity } = res.locals.table;
   const { people } = res.locals.reservation;
@@ -90,7 +95,7 @@ function tableCapacity(req, res, next) {
   next();
 }
 
-
+// checks if a table is occupied
 function tableOccupied(req, res, next) {
   const table = res.locals.table;
   if (table.status === "Occupied") {
@@ -100,6 +105,7 @@ function tableOccupied(req, res, next) {
   next();
 }
 
+// checks if a table is not occupied
 function tableNotOccupied(req, res, next) {
   const table = res.locals.table;
   if (!table.reservation_id) {
@@ -109,6 +115,7 @@ function tableNotOccupied(req, res, next) {
   next();
 }
 
+// checks whether the reservation status is seated
 function checkResStatus(req, res, next) {
   const { reservation } = res.locals;
   if (reservation.status === "seated") {
@@ -120,17 +127,20 @@ function checkResStatus(req, res, next) {
 
 // CRUD functions
 
+// posts a new table
 async function create(req, res) {
   const table = res.locals.table;
   const newTable = await tablesService.create(table);
   res.status(201).json({ data: newTable });
 }
 
+// lists the tables
 async function list(req, res) {
   const tables = await tablesService.list();
   res.status(200).json({ data: tables });
 }
 
+// updates the table with a seat reservation
 async function updateSeatReservation(req, res) {
   const { table, reservation } = res.locals;
   table.reservation_id = reservation.reservation_id;
@@ -142,6 +152,7 @@ async function updateSeatReservation(req, res) {
   res.json({ data: updatedTable });
 }
 
+// updatse the table status to finished
 async function finishTable(req, res) {
   const { table } = res.locals;
 
