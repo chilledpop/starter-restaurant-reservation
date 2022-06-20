@@ -19,9 +19,9 @@ function ReservationList({ reservation }) {
   }
   
   return (
-    <div className="card col-lg-4">
+    <div className="card col-sm-8 col-md-7 col-lg-6 m-auto">
       <div className="card-body">
-        <h5 className="card-title">{reservation.first_name} {reservation.last_name}</h5>
+        <h5 className="card-title ">{reservation.first_name} {reservation.last_name}</h5>
         <h6 className="card-subtitle mb-2 text-muted">Phone Number: {reservation.mobile_number}</h6>
         <p className="card-text">Time: {reservation.reservation_time}</p>
         <p className="card-text">
@@ -35,7 +35,7 @@ function ReservationList({ reservation }) {
             <Link className="btn btn-outline-info" to={`/reservations/${reservation.reservation_id}/seat`}>
               Seat
             </Link>
-            <Link className="btn btn-outline-warning" to={`/reservations/${reservation.reservation_id}/edit`}>
+            <Link className="btn btn-outline-warning mx-2" to={`/reservations/${reservation.reservation_id}/edit`}>
               Edit
             </Link>
             <button className="btn btn-outline-secondary" onClick={handleCancel} data-reservation-id-cancel={reservation.reservation_id}>

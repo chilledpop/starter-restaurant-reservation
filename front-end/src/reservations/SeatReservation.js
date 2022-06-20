@@ -47,11 +47,11 @@ function SeatReservation() {
 
   return (
     <div>
-      <h2>Seat Reservation: {reservation_id}</h2>
-      <h6 className="text-muted">Choose a table for the reservation:</h6>
+      <h1 className="text-info text-center">Seat Reservation: {reservation_id}</h1>
+      <h5 className="text-muted text-center">Choose a table for the reservation:</h5>
       <ErrorAlert error={error} />
       <form onSubmit={handleSubmit}>
-        <label htmlFor="table_id">
+        <label htmlFor="table_id" className="d-flex justify-content-center">
           <select
             id="table_id"
             name="table_id"
@@ -67,9 +67,9 @@ function SeatReservation() {
           </select>
         </label>
         <br />
-        <div>
-          <button type="button" className="btn btn-secondary" onClick={cancelHandler}>Cancel</button>
-          <button type="submit" className="btn btn-primary">Submit</button>
+        <div className="d-flex justify-content-center">
+          <button type="button" className="btn btn-outline-secondary mx-2" onClick={cancelHandler}>Cancel</button>
+          <button type="submit" className="btn btn-outline-info">Submit</button>
         </div>
       </form>
     </div>
