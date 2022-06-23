@@ -23,14 +23,19 @@ function EditReservation({ forceRerender, setForceRerender }) {
 
   useEffect(() => {
     const abortController = new AbortController();
-    readReservation(reservation_id, abortController.signal)
-      .then((reservationFromAPI) => {
+    async function loadReservation() {
+      try {
+        const reservationFromAPI = await readReservation(reservation_id, abortController.signal);
         setFormData({
           ...reservationFromAPI,
           reservation_date: formatAsDate(reservationFromAPI.reservation_date),
         });
-      })
-      .catch(setError);
+      } catch (error) {
+        setError(error);
+      }
+    }
+
+    loadReservation();
     return () => abortController.abort();
   }, [reservation_id]);
 
@@ -45,12 +50,17 @@ function EditReservation({ forceRerender, setForceRerender }) {
   const handleSubmit = (event) => {
     event.preventDefault();
     const abortController = new AbortController();
-    updateReservation(formData, abortController.signal)
-      .then(() => {
+    async function updateRes() {
+      try {
+        await updateReservation(formData, abortController.signal);
         history.push(`/dashboard?date=${formData.reservation_date}`);
         setForceRerender(!forceRerender);
-      })
-      .catch(setError);
+      } catch (error) {
+        setError(error);
+      }
+    }
+
+    updateRes();
     return () => abortController.abort();
   }
 

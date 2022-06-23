@@ -28,12 +28,19 @@ function CreateReservation() {
   }
 
   const handleSubmit = (event) => {
-    event.preventDefault(); 
-    createReservation(formData)
-      .then(() => history.push(`/dashboard?date=${formData.reservation_date}`))
-      .catch((error) => {
+    event.preventDefault();
+    const abortController = new AbortController();
+    async function postRes() {
+      try {
+        await createReservation(formData, abortController.signal);
+        history.push(`/dashboard?date=${formData.reservation_date}`);
+      } catch (error) {
         setError(error);
-      })
+      }
+    }
+    
+    postRes();
+    return () => abortController.abort(); 
   }
 
 

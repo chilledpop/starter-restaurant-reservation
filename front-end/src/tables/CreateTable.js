@@ -24,11 +24,16 @@ function CreateTable() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    createTable(formData)
-      .then(() => history.push("/dashboard"))
-      .catch((error) => {
+    async function postTable() {
+      try {
+        await createTable(formData);
+        history.push("/dashboard");
+      } catch(error) {
         setError(error);
-      })
+      }
+    }
+
+    postTable();
   }
 
   const cancelHandler = () => {

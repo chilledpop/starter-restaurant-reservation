@@ -25,9 +25,17 @@ function Search() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const abortController = new AbortController();
-    searchReservations(formData.mobile_number, abortController.signal)
-      .then(setReservations)
-      .catch(setError);
+    async function findReservations() {
+      try {
+        const matchingReservations = await searchReservations(formData.mobile_number, abortController.signal);
+        setReservations(matchingReservations);
+      } catch(error) {
+        setError(error);
+      }
+    }
+
+    findReservations();
+    return () => abortController.abort();
   }
 
   const cancelHandler = () => {

@@ -11,9 +11,17 @@ function ReservationList({ reservation }) {
     const userResponse = window.confirm("Do you want to cancel this reservation? This cannot be undone.");
     if (userResponse) {
       const abortController = new AbortController();
-      updateReservationStatus("cancelled", reservation.reservation_id, abortController.signal)
-        .then(history.push("/"))
-      window.location.reload();
+      async function update() {
+        try {
+          await updateReservationStatus("cancelled", reservation.reservation_id, abortController.signal);
+          history.push("/");
+          window.location.reload();
+        } catch (error) {
+          console.log(error);
+        }
+      }
+
+      update();
       return () => abortController.abort();
     }
   }
