@@ -3,6 +3,14 @@
 ## Live Application
 https://front-end-kappa-liard.vercel.app/dashboard 
 
+## Screenshots
+![Screen Shot 2022-09-01 at 11 14 50 AM](https://user-images.githubusercontent.com/93909152/187984427-9b978503-6db2-44db-bda2-8053eb75269d.png)
+![Screen Shot 2022-09-01 at 11 15 28 AM](https://user-images.githubusercontent.com/93909152/187984520-b6b502f6-42f2-49d7-bfe0-9b63ca78dc26.png)
+![Screen Shot 2022-09-01 at 11 15 41 AM](https://user-images.githubusercontent.com/93909152/187984540-a98dd865-895f-4f3d-b1dd-c983b7e117a9.png)
+![Screen Shot 2022-09-01 at 11 16 00 AM](https://user-images.githubusercontent.com/93909152/187984589-fdf1b0b3-171c-4b4e-885b-c37aa0f60c2c.png)
+![Screen Shot 2022-09-01 at 11 16 22 AM](https://user-images.githubusercontent.com/93909152/187984641-55f92197-b43d-4546-a65f-5fb476dbb29d.png)
+
+
 ## Technologies
 - ReactJS
 - Bootstrap
